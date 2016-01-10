@@ -1,3 +1,7 @@
+# This file should be /etc/config/sub2rbl
+#
+# https://github.com/robzr/sub2rbl
+#
 config sub2rbl 
   # name of ipset that stores the RBL
 #  option setName sub2rbl

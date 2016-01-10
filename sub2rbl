@@ -2,6 +2,8 @@
 #
 # sub2rbl -> Subscribe to RBLs; integrates into iptables -- @robzr
 #
+#   https://github.com/robzr/sub2rbl
+#
 # Recommended to run out of cron periodically, using default parameters.
 #
 # Dependencies: ipset (68k), openssl-util (195k) (if using HTTPS RBLs)
