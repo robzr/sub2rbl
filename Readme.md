@@ -17,3 +17,5 @@ as follows:
 
 Dependencies include ipset, and openssl (if HTTPS based RBLs are used).
 
+Also see the sister project for log based bans: http://github.com/robzr/bearDropper
+
