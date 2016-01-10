@@ -1,0 +1,166 @@
+#!/bin/sh
+#
+# sub2rbl -> Subscribe to RBLs; integrates into iptables -- @robzr
+#
+# Recommended to run out of cron periodically, using default parameters.
+#
+# Dependencies: ipset (68k), openssl-util (195k) (if using HTTPS RBLs)
+#
+
+uciLoad () { local gU; gU=`uci -q get 'sub2rbl.@[0]'."$1"` || gU="$2"; eval $1=\'$gU\';}
+
+# Make changes to these uci values in /etc/config/sub2rbl
+uciLoad setName sub2rbl
+uciLoad logLevel 1
+uciLoad logFacility 'authpriv.notice'
+uciLoad firewallHookChain 'input_wan_rule'
+uciLoad firewallHookPosition 1
+uciLoad firewallTarget 'DROP'
+uciLoad logTag "sub2rbl[$$]"
+
+# Functions 
+#
+
+logLine () {
+  [ $1 -gt $logLevel ] && return ; shift
+  if [ "$logFacility" = "stdout" ] ; then echo "$@"
+  elif [ "$logFacility" = "stderr" ] ; then echo "$@" >&2
+  else logger -t "$logTag" -p "$logFacility" "$@"
+  fi
+}
+
+# Arg: $1=setName, $2=logLevel
+createSet () {
+  local set="$1" useLogLevel="$2"
+  if ! ipset list "$set" >&/dev/null ; then
+    logLine $useLogLevel "Creating ipset $set"
+    ipset create "$set" hash:ip counters comment
+  fi
+}
+
+# Arg: $1=setName, $2=logLevel
+removeSet () {
+  local set="$1" useLogLevel=$2
+  if ipset list "$set" >&/dev/null ; then
+    logLine $useLogLevel "Destroying ipset $set"
+    ipset destroy "$set"
+  fi
+}
+
+setupIPTables () {
+  if [ $firewallHookPosition -ge 0 ] ; then
+    if ! iptables -C "$firewallHookChain" -m set --match-set "$setName" src -j "$firewallTarget" 2>/dev/null ; then
+      logLine 1 "Inserting rule into iptables chain $firewallHookChain"
+      if [ $firewallHookPosition = 0 ] ; then
+        iptables -A "$firewallHookChain" -m set --match-set "$setName" src -j "$firewallTarget"
+      else
+        iptables -I "$firewallHookChain" $firewallHookPosition -m set --match-set "$setName" src -j "$firewallTarget"
+  fi ; fi ; fi
+}
+
+wipeIPTables () {
+  if [ $firewallHookPosition -ge 0 ] ; then
+    if iptables -C "$firewallHookChain" -m set --match-set "$setName" src -j "$firewallTarget" 2>/dev/null ; then
+      logLine 1 "Removing rule from iptables chain $firewallHookChain"
+      iptables -D "$firewallHookChain" -m set --match-set "$setName" src -j "$firewallTarget"
+  fi ; fi
+}
+
+# Args: $1=ip $2=comment
+add2swingSet () { ipset add "$swingSetName" "$1" comment "$2" ; }
+
+printUsage () {
+  cat <<-_EOF_
+	Usage: sub2rbl [-C ...] [-f ...] [-F #] [-j ...] [-l #] [-s ...] [-w] [URL ...]
+	  -C ... firewall chain to hook into (def: $firewallHookChain)
+	  -f ... log facility (syslog facility or stdout/stderr) (def: $logFacility)
+	  -F #   firewall chain hook position (def: $firewallHookPosition)
+	  -j ... firewall target when matching the set (def: $firewallTarget)
+	  -l #   log level - 0=off, 1=standard, 2=verbose (def: $logLevel)
+	  -s ... ipset name
+	  -w     wipe ipset and iptables rule (do not process RBLs)
+	  URL(s) RBL URLs - using command line RBL URLs will override uci entries
+	_EOF_
+}
+
+# Logic begins
+#
+wipe=false
+while getopts C:f:F:hj:l:s:w arg ; do
+  case "$arg" in
+    C) firewallHookChain=$OPTARG
+      ;;
+    f) logFacility=$OPTARG
+      ;;
+    F) firewallHookPosition=$OPTARG
+      ;;
+    j) firewallTarget=$OPTARG
+      ;;
+    l) logLevel=$OPTARG
+      ;;
+    s) setName=$OPTARG
+      ;;
+    w) wipe=true
+      ;;
+    *) printUsage
+      exit 254
+  esac
+shift `expr $OPTIND - 1`
+done  
+
+rblList="$@"
+
+if $wipe ; then
+  logLine 2 "Initiating wipe process"
+  wipeIPTables
+  removeSet "$setName" 1
+  exit
+fi
+
+[ -z "$rblList" ] && rblList="`uci -q get 'sub2rbl.@[0]'.rbl`"
+unset whiteList
+for x in `uci -q get 'sub2rbl.@[0].whitelist'` ; do
+  whiteList="\"$x\"\\|$whiteList"
+done
+[ -n "$whiteList" ] ; then whiteList="${whiteList}\"^\$\""
+
+swingSetName="${setName}_swing"
+tmpFile="`mktemp`"
+tmpFile2="`mktemp`"
+
+createSet "$setName" 1
+createSet "$swingSetName" 2
+setupIPTables
+
+for rbl in $rblList ; do
+  logLine 2 "Retrieving RBL ($rbl)"
+  if ! errorMsg=`wget -qO "$tmpFile" "$rbl" 2>&1`; then
+    logLine 1 "Error: RBL($rbl): $errorMsg"
+    continue
+  fi
+  logLine 3 "Processing RBL ($rbl)"
+  # autodetect the DRG sshpwauth report
+  egrep -v '^#' "$tmpFile" | head -1 | grep -q '^.*|.*|.*|.*|.*sshpwauth'
+  if [ $? -eq 0 ] ; then
+    logLine 3 "Detected DRG pwauth"
+    sed -n 's/^.*|.*| *\([0-9\.][0-9\.]*\) .*$/\1/p' "$tmpFile" > "$tmpFile2"
+  else
+    logLine 3 "Falling back on straight IP list"
+    sed -n 's/^ *\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\) *$/\1/p' "$tmpFile" > "$tmpFile2"
+  fi
+  if [ -n "$whiteList" ] ; then
+    logLine 2 "Processing whitelist"
+    eval egrep -v "$whiteList" "$tmpFile2" \> "$tmpFile"
+    mv "$tmpFile" "$tmpFile2"
+  fi
+  sed -i "s/^/add $swingSetName /" "$tmpFile2"
+  setSizeBefore=`ipset save "$swingSetName" | egrep '^add ' | wc -l`
+  ipset restore -f "$tmpFile2" -\!
+  setSize=`ipset save "$swingSetName" | egrep '^add ' | wc -l`
+  logLine 1 "RBL ($rbl) added $((setSize - setSizeBefore)) entries"
+  rm -f "$tmpFile" "$tmpFile2"
+done
+
+logLine 3 "Swinging ipsets"
+ipset swap "$swingSetName" "$setName"
+removeSet "$swingSetName" 2
