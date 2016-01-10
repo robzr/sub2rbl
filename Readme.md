@@ -1,5 +1,4 @@
 # sub2rbl
----
 --Rob Zwissler @robzr
 
 **Synchronizes RBLs to iptables**
