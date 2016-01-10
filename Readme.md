@@ -1,4 +1,8 @@
 # sub2rbl
+---
+--Rob Zwissler @robzr
+
+**Synchronizes RBLs to iptables**
 
 Subscribe to RBL - minimalist OpenWRT (Chaos Calmer) script to download
 and compile RBLs from various sources into an ipset and insert an
