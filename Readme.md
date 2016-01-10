@@ -1,7 +1,5 @@
 # sub2rbl
---Rob Zwissler @robzr
-
-**Synchronizes RBLs to iptables**
+**Synchronizes RBLs to iptables** --Rob Zwissler @robzr
 
 Subscribe to RBL - minimalist OpenWRT (Chaos Calmer) script to download
 and compile RBLs from various sources into an ipset and insert an
@@ -10,12 +8,13 @@ iptables rule which drops packets originating from entries in RBLs.
 The included config file (/etc/config/sub2rbl) has a few ssh-scan based 
 RBLs which will work out of the box.
 
-Recommended installation is to run via a cron entry, which can be setup
-as follows:
+**Installation**
 
 	echo '0 */6 * * * /usr/bin/sub2rbl' >> /etc/crontabs/root
 
-Dependencies include ipset, and openssl (if HTTPS based RBLs are used).
+**Dependencies**
+ - ipset & kmod-ipt-ipset
+ - openssl (if HTTPS based RBLs are used)
 
-Also see the sister project for log based bans: http://github.com/robzr/bearDropper
+Also see the sister project bearDropper for log based bans: http://github.com/robzr/bearDropper
 
