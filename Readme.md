@@ -29,6 +29,7 @@ command line arguments.  sub2rbl -h for a list of arguments.
 	wget -O /usr/sbin/sub2rbl https://raw.githubusercontent.com/robzr/sub2rbl/master/sub2rbl
 	chmod 755 /usr/sbin/sub2rbl
 	echo '0 */6 * * * /usr/bin/sub2rbl' >> /etc/crontabs/root
+	/etc/init.d/cron enable
 
 **TBD**
 - Add more RBLs and RBL handling
