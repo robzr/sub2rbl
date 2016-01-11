@@ -30,9 +30,9 @@ command line arguments.  sub2rbl -h for a list of arguments.
 	chmod 755 /usr/sbin/sub2rbl
 	echo '0 */6 * * * /usr/bin/sub2rbl' >> /etc/crontabs/root
 
-Also see the sister project bearDropper for log based bans: http://github.com/robzr/bearDropper
-
 **TBD**
 - Add more RBLs and RBL handling
 - package
 - ipv6
+
+Also see the sister project bearDropper for log based bans: http://github.com/robzr/bearDropper
