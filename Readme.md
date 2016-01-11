@@ -13,9 +13,11 @@ RBLs which will work out of the box.
 - openssl-util (needed for https RBL URLs)
 
 **Logging**
+
 sub2rbl logs to syslog, so use the logread command to view the log
 
 **Config**
+
 sub2rbl runs out of the box with sane settings. Config options are 
 stored in /etc/config/sub2rbl and are overridable with cmdline options.
 
