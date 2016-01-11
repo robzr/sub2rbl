@@ -1,44 +1,40 @@
-# This file should be /etc/config/sub2rbl
 #
-# https://github.com/robzr/sub2rbl
+# sub2rbl - https://github.com/robzr/sub2rbl
 #
 config sub2rbl 
-  # name of ipset that stores the RBL
-#  option setName sub2rbl
+  # Name of ipset that stores the RBL
+  #	option	setName		sub2rbl
 
-  # log level, 0=silent 1=default, 2=verbose, 3=debug
-#  option logLevel 1
+  # Log Level - 0=silent 1=default 2=verbose 3=debug
+  #	option	logLevel	1
 
-  # logger facility/priority - use stdout or stderr to bypass syslog
-#  option logFacility 'authpriv.notice'
+  # Logger facility/priority - use stdout or stderr to bypass syslog
+  #	option	logFacility	authpriv.notice
 
-  # firewall chain to hook the chain containing ban rules into
-#  option firewallHookChain 'input_wan_rule'
+  # IPTables chain to add the rule to
+  #	option	firewallHookChain	input_wan_rule
 
-  # position in firewall hook chain (-1 = don't add, 0 = append, 1+ = absolute position)
-#  option firewallHookPosition 1
+  # IPTables chain position (-1 = don't add, 0 = append, 1+ = absolute position)
+  #	option	firewallHookPosition	1
 
-  # The target for a banned IP - you could use this to jump to a custom chain
-  # for logging, launching external commands, etc.
-#  option firewallTarget 'DROP'   
+  # IPTables target for banned IPs - you could use this to jump to a custom
+  # chain for logging, launching external commands, etc.
+  # 	option	firewallTarget	DROP
   
-  # Whitelist glob strings (regex style) - private IP ranges used for as examples
-  list   whitelist '^10\.0\.[01]\..*$'
-  list   whitelist '^192\.168\.1\..*$'
+  # Whitelist regex strings examples
+  #	list	whitelist	'^10\.0\.[01]\..*$'
+  #	list	whitelist	'^192\.168\.1\..*$'
 
-  # RBL URLs
+  # RBL URLs - should also support http to save space (no openssl-util needed)
   #
-  # Recommended to use https instead of http (all of these default RBLs
-  # support it) - to do so, install openssl-util and update the URLs
-
-#  # https://openbl.org - currently down
-#  list   rbl  'https://openbl.org/lists/base_30days.txt'
-#  list   rbl  'https://openbl.org/lists/base_90days.txt'
+  # https://openbl.org - currently down
+  #	list	rbl	https://openbl.org/lists/base_30days.txt
+  #	list	rbl	https://openbl.org/lists/base_90days.txt
 
   # https://www.dragonresearchgroup.org/insight/sshpwauth-tac.html
-  list   rbl  'https://www.dragonresearchgroup.org/insight/sshpwauth.txt'
+	list	rbl	https://www.dragonresearchgroup.org/insight/sshpwauth.txt
 
   # https://www.blocklist.de
-  list   rbl  'https://lists.blocklist.de/lists/ssh.txt'
-  list   rbl  'https://lists.blocklist.de/lists/bruteforcelogin.txt'
-#  list  rbl  'https://lists.blocklist.de/lists/all.txt'
+	list	rbl	https://lists.blocklist.de/lists/ssh.txt
+	list	rbl	https://lists.blocklist.de/lists/bruteforcelogin.txt
+  #	list	rbl	https://lists.blocklist.de/lists/all.txt
