@@ -1,5 +1,5 @@
 # sub2rbl
-**Synchronizes RBLs to iptables (using ipset)** - @robzr
+**Implements iptables RBL blocking using ipset** - @robzr
 
 Subscribe to RBL - minimalist OpenWRT (Chaos Calmer) script to download
 and compile RBLs from various sources into an ipset and insert a rule
@@ -14,12 +14,13 @@ RBLs which will work out of the box.
 
 **Logging**
 
-sub2rbl logs to syslog, so use the logread command to view the log
+sub2rbl logs to syslog, so use the logread command to view the log.
 
 **Config**
 
 sub2rbl runs out of the box with sane settings. Config options are 
-stored in /etc/config/sub2rbl and are overridable with cmdline options.
+stored in /etc/config/sub2rbl and are overridable at runtime with 
+command line arguments.  sub2rbl -h for a list of arguments.
 
 **Installation**
 
@@ -31,3 +32,7 @@ stored in /etc/config/sub2rbl and are overridable with cmdline options.
 
 Also see the sister project bearDropper for log based bans: http://github.com/robzr/bearDropper
 
+**TBD**
+- Add more RBLs and RBL handling
+- package
+- ipv6

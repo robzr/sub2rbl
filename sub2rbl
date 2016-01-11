@@ -1,28 +1,28 @@
 #!/bin/sh
 #
-# sub2rbl -> Subscribe to RBLs; integrates into iptables -- @robzr
+# sub2rbl -> Subscribe to RBLs; integrates into iptables - @robzr
 #
 #   https://github.com/robzr/sub2rbl
 #
 # Recommended to run out of cron periodically, using default parameters.
 #
-# Dependencies: ipset (68k), openssl-util (195k) (if using HTTPS RBLs)
+# Dependencies: ipset (<200k), openssl-util (<200kb, needed if using https RBLs)
 #
 
+# for loading variables from uci (with default value)
 uciLoad () { local gU; gU=`uci -q get 'sub2rbl.@[0]'."$1"` || gU="$2"; eval $1=\'$gU\';}
 
 # Make changes to these uci values in /etc/config/sub2rbl
 uciLoad setName sub2rbl
 uciLoad logLevel 1
-uciLoad logFacility 'authpriv.notice'
-uciLoad firewallHookChain 'input_wan_rule'
+uciLoad logFacility authpriv.notice
+uciLoad firewallHookChain input_wan_rule
 uciLoad firewallHookPosition 1
-uciLoad firewallTarget 'DROP'
+uciLoad firewallTarget DROP
 uciLoad logTag "sub2rbl[$$]"
 
 # Functions 
 #
-
 logLine () {
   [ $1 -gt $logLevel ] && return ; shift
   if [ "$logFacility" = "stdout" ] ; then echo "$@"
@@ -60,7 +60,7 @@ setupIPTables () {
   fi ; fi ; fi
 }
 
-wipeIPTables () {
+removeFromIPTables () {
   if [ $firewallHookPosition -ge 0 ] ; then
     if iptables -C "$firewallHookChain" -m set --match-set "$setName" src -j "$firewallTarget" 2>/dev/null ; then
       logLine 1 "Removing rule from iptables chain $firewallHookChain"
@@ -85,25 +85,19 @@ printUsage () {
 	_EOF_
 }
 
+
 # Logic begins
 #
 wipe=false
 while getopts C:f:F:hj:l:s:w arg ; do
   case "$arg" in
-    C) firewallHookChain=$OPTARG
-      ;;
-    f) logFacility=$OPTARG
-      ;;
-    F) firewallHookPosition=$OPTARG
-      ;;
-    j) firewallTarget=$OPTARG
-      ;;
-    l) logLevel=$OPTARG
-      ;;
-    s) setName=$OPTARG
-      ;;
-    w) wipe=true
-      ;;
+    C) firewallHookChain=$OPTARG ;;
+    f) logFacility=$OPTARG ;;
+    F) firewallHookPosition=$OPTARG ;;
+    j) firewallTarget=$OPTARG ;;
+    l) logLevel=$OPTARG ;;
+    s) setName=$OPTARG ;;
+    w) wipe=true ;;
     *) printUsage
       exit 254
   esac
@@ -114,7 +108,7 @@ rblList="$@"
 
 if $wipe ; then
   logLine 2 "Initiating wipe process"
-  wipeIPTables
+  removeFromIPTables
   removeSet "$setName" 1
   exit
 fi
