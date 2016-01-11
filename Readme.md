@@ -25,7 +25,7 @@ command line arguments.  sub2rbl -h for a list of arguments.
 **Installation**
 
 	opkg install ipset kmod-ipt-ipset openssl-util
-	wget -O /etc/config/sub2rbl https://raw.githubusercontent.com/robzr/sub2rbl/master/config/config
+	wget -O /etc/config/sub2rbl https://raw.githubusercontent.com/robzr/sub2rbl/master/config/sub2rbl
 	wget -O /usr/sbin/sub2rbl https://raw.githubusercontent.com/robzr/sub2rbl/master/sub2rbl
 	chmod 755 /usr/sbin/sub2rbl
 	echo '0 */6 * * * /usr/bin/sub2rbl' >> /etc/crontabs/root
