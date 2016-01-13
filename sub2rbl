@@ -68,9 +68,6 @@ removeFromIPTables () {
   fi ; fi
 }
 
-# Args: $1=ip $2=comment
-add2swingSet () { ipset add "$swingSetName" "$1" comment "$2" ; }
-
 printUsage () {
   cat <<-_EOF_
 	Usage: sub2rbl [-C ...] [-f ...] [-F #] [-j ...] [-l #] [-s ...] [-w] [URL ...]
@@ -84,7 +81,6 @@ printUsage () {
 	  URL(s) RBL URLs - using command line RBL URLs will override uci entries
 	_EOF_
 }
-
 
 # Logic begins
 #
