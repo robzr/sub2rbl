@@ -27,14 +27,14 @@ config sub2rbl
 
   # RBL URLs - should also support http to save space (no openssl-util needed)
   #
-  # https://openbl.org - currently down
-  	list	rbl	https://openbl.org/lists/base_30days.txt
-  #	list	rbl	https://openbl.org/lists/base_90days.txt
+  # https://openbl.org
+	list	rbl	https://openbl.org/lists/base_all_ssh-only.txt
+  #	list	rbl	https://openbl.org/lists/base_30days.txt
 
   # https://www.dragonresearchgroup.org/insight/sshpwauth-tac.html
 	list	rbl	https://www.dragonresearchgroup.org/insight/sshpwauth.txt
 
   # https://www.blocklist.de
 	list	rbl	https://lists.blocklist.de/lists/ssh.txt
-	list	rbl	https://lists.blocklist.de/lists/bruteforcelogin.txt
+	list	rbl	https://lists.blocklist.de/lists/strongips.txt
   #	list	rbl	https://lists.blocklist.de/lists/all.txt
