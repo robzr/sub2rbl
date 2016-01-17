@@ -35,7 +35,7 @@ logLine () {
 # Arg: $1=setName, $2=logLevel
 createSet () {
   local set="$1" useLogLevel="$2"
-  ipset list -q -n "$set" || >/dev/null {
+  ipset list -q -n "$set" >/dev/null || {
     logLine $useLogLevel "Creating ipset $set"
     ipset create "$set" hash:ip $ipsetArgs
 } }
@@ -43,7 +43,7 @@ createSet () {
 # Arg: $1=setName, $2=logLevel
 removeSet () {
   local set="$1" useLogLevel=$2
-  ipset list -q -n "$set" || >/dev/null {
+  ipset list -q -n "$set" >/dev/null && {
     logLine $useLogLevel "Destroying ipset $set"
     ipset destroy "$set"
 } }
