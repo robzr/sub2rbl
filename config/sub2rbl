@@ -5,6 +5,9 @@ config sub2rbl
   # Name of ipset that stores the RBL
   #	option	setName		sub2rbl
 
+  # ipset maximum elements - increase for use with larger RBLs
+  # 	option	maxelem		32768
+
   # Log Level - 0=silent 1=default 2=verbose 3=debug
   #	option	logLevel	1
 

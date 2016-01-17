@@ -20,6 +20,7 @@ uciLoad firewallHookChain input_wan_rule
 uciLoad firewallHookPosition 1
 uciLoad firewallTarget DROP
 uciLoad logTag "sub2rbl[$$]"
+uciLoad maxelem 32768
 
 # Functions 
 #
@@ -36,7 +37,7 @@ createSet () {
   local set="$1" useLogLevel="$2"
   if ! ipset list "$set" >&/dev/null ; then
     logLine $useLogLevel "Creating ipset $set"
-    ipset create "$set" hash:ip counters comment
+    ipset create "$set" hash:ip counters maxelem $maxelem
   fi
 }
 
