@@ -2,17 +2,20 @@
 # sub2rbl - https://github.com/robzr/sub2rbl
 #
 config sub2rbl 
-  # Name of ipset that stores the RBL
+  # Name of ipset that stores the RBLs
   #	option	setName		sub2rbl
 
-  # ipset create arguments - use maxelem to tune maximum elements
-  #     option  ipsetArgs       "maxelem 32768"
+  # Name of ipset that stores the net based RBLs
+  #	option	netSetName	sub2rbl-net
+
+  # ipset create arguments
+  #	option	ipsetArgs	"hashsize 1024 maxelem 32768"
 
   # Log Level - 0=silent 1=default 2=verbose 3=debug
   #	option	logLevel	1
 
   # Logger facility/priority - use stdout or stderr to bypass syslog
-  #	option	logFacility	authpriv.notice
+  # 	option	logFacility	authpriv.notice
 
   # IPTables chain to add the rule to
   #	option	firewallHookChain	input_wan_rule
@@ -22,22 +25,27 @@ config sub2rbl
 
   # IPTables target for banned IPs - you could use this to jump to a custom
   # chain for logging, launching external commands, etc.
-  # 	option	firewallTarget	DROP
+  #  	option	firewallTarget	DROP
   
   # Whitelist regex strings examples
   #	list	whitelist	'^10\.0\.[01]\..*$'
   #	list	whitelist	'^192\.168\.1\..*$'
 
-  # RBL URLs - should also support http to save space (no openssl-util needed)
+  # RBL URLs - some (but not all) will also support http
   #
-  # https://openbl.org - tracks various services
-  	list	rbl	https://www.openbl.org/lists/base_30days.txt
-  # 	list	rbl	https://www.openbl.org/lists/base_90days.txt
+  # Plain URL is for IP based RBLs; prepend net: to the URL for CIDR (net) RBLs
+  #
+  # https://openbl.org - tracks various services, lots of lists available
+        list    rbl     'https://www.openbl.org/lists/base_30days.txt'
+  #     list    rbl     'https://www.openbl.org/lists/base_90days.txt'
 
-  # https://www.blocklist.de/en - blacklists generated from fail2ban installations
-	list	rbl	https://lists.blocklist.de/lists/ssh.txt
-	list	rbl	https://lists.blocklist.de/lists/strongips.txt
+  # https://www.blocklist.de/en - blacklists generated from fail2ban feedback
+        list    rbl     'https://lists.blocklist.de/lists/ssh.txt'
+        list    rbl     'https://lists.blocklist.de/lists/strongips.txt'
 
   # https://www.dragonresearchgroup.org/insight/sshpwauth-tac.html
-	list	rbl	https://www.dragonresearchgroup.org/insight/sshpwauth.txt
+        list    rbl     'https://www.dragonresearchgroup.org/insight/sshpwauth.txt'
 
+  # Spamhaus DROP/EDROP spammer/cyber-crime net based RBLs - https://www.spamhaus.org/drop
+	list	rbl	'net:https://www.spamhaus.org/drop/drop.txt'
+	list	rbl	'net:https://www.spamhaus.org/drop/edrop.txt'
