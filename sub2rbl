@@ -15,14 +15,17 @@ uciLoad () { local gU; gU=`uci -q get 'sub2rbl.@[0]'."$1"` || gU="$2"; eval $1=\
 
 # Make changes to these uci values in /etc/config/sub2rbl
 uciLoad setName sub2rbl
-uciLoad netSetName sub2rbl-net
+uciLoad netSetName "$setName"-net
 uciLoad logLevel 1
 uciLoad logFacility authpriv.notice
 uciLoad firewallHookChain input_wan_rule
 uciLoad firewallHookPosition 1
 uciLoad firewallTarget DROP
+
+# Advanced settings - not documented in sample config
 uciLoad logTag "sub2rbl[$$]"
 uciLoad ipsetArgs "maxelem 32768"
+uciLoad curlArgs "-sSm15"
 
 # Functions 
 #
@@ -141,9 +144,8 @@ for rbl in $rblList ; do
   createSet 1 "$tempSet" $setType
   createSet 2 "$tempSet"_swing $setType
   logLine 2 "Retrieving RBL ($rbl)"
-logLine 3 Running curl -o "$tmpFile" "$rbl"
-  if ! errorMsg=`curl -o "$tmpFile" "$rbl" 2>&1`; then
-    logLine 1 "Error: RBL($rbl): $errorMsg"
+  if ! errorMsg=`curl $curlArgs -o "$tmpFile" "$rbl" 2>&1`; then
+    logLine 1 "Error: retrieving RBL($rbl): $errorMsg"
     continue
   fi
   logLine 3 "Processing RBL ($rbl)"
@@ -163,7 +165,7 @@ logLine 3 Running curl -o "$tmpFile" "$rbl"
       sed -n 's#^ *\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*[/0-9]*\)[ 	]*.*$#\1#p' "$tmpFile" > "$tmpFile2"
   fi
   if [ -n "$whiteList" ] ; then
-    logLine 2 "Processing whitelist"
+    logLine 3 "Applying whitelist"
     eval egrep -v "$whiteList" "$tmpFile2" \> "$tmpFile"
     mv "$tmpFile" "$tmpFile2"
   fi

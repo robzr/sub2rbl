@@ -9,10 +9,10 @@ from entries in RBLs.
 The included config file (/etc/config/sub2rbl) includes a number of IP
 based RBLs (primarily based on ssh brute force scanning) and Spamhaus
 DROP/EDROP net based RBLs (based on hijacked IP ranges used by spammers
-and cyber-criminals)
+and cyber-criminals).
 
 **Dependencies**
-- curl (sadly busybox/wget did not work for all the RBLs I tried)
+- curl (sadly, busybox/wget did not work for all the RBLs I tried)
 - ipset & kmod-ipt-ipset
 - openssl-util & ca-certificates (needed for https RBL URLs)
 
@@ -36,6 +36,8 @@ command line arguments.  sub2rbl -h for a list of arguments.
 	chmod 755 /usr/sbin/sub2rbl
 	echo '0 */6 * * * /usr/sbin/sub2rbl' >> /etc/crontabs/root
 	/etc/init.d/cron enable
+	# And to watch it in action, for the first run, try:
+	sub2rbl -l 2 -f stdout
 
 **TBD**
 - package

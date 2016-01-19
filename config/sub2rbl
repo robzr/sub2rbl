@@ -8,9 +8,6 @@ config sub2rbl
   # Name of ipset that stores the net based RBLs
   #	option	netSetName	sub2rbl-net
 
-  # ipset create arguments
-  #	option	ipsetArgs	"hashsize 1024 maxelem 32768"
-
   # Log Level - 0=silent 1=default 2=verbose 3=debug
   #	option	logLevel	1
 
@@ -31,10 +28,12 @@ config sub2rbl
   #	list	whitelist	'^10\.0\.[01]\..*$'
   #	list	whitelist	'^192\.168\.1\..*$'
 
+
   # RBL URLs - some (but not all) will also support http
   #
   # Plain URL is for IP based RBLs; prepend net: to the URL for CIDR (net) RBLs
   #
+  
   # https://openbl.org - tracks various services, lots of lists available
         list    rbl     'https://www.openbl.org/lists/base_30days.txt'
   #     list    rbl     'https://www.openbl.org/lists/base_90days.txt'
