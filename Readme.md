@@ -39,7 +39,19 @@ command line arguments.  sub2rbl -h for a list of arguments.
 	# And to watch it in action, for the first run, try:
 	sub2rbl -l 2 -f stdout
 
+**Monitoring**
+
+You can take a look at the packet counts (first column) to see how many connection attempts the sub2rbl sets have prevented.
+
+	root@gw:~# iptables -nvL input_wan_rule
+	Chain input_wan_rule (1 references)
+	 pkts bytes target     prot opt in     out     source               destination         
+	    0     0 DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set sub2rbl-net src
+	  204 12572 DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set sub2rbl src
+	 3390  389K bearDropper  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+
 **TBD**
+
 - package
 - ipv6
 
