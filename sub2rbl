@@ -7,7 +7,7 @@
 # Recommended to run out of cron periodically, using default parameters.
 #
 # Dependencies: curl (33k) & ipset (200k) needed for basic operation
-#               ca-certificates (186k) & openssl-util (200kb) needed if using HTTPS RBLs
+#               ca-certificates (186k) needed if using HTTPS RBLs
 
 # for loading variables from uci (with default value) 
 uciLoad() { local gU; gU=`uci -q get 'sub2rbl.@[0]'."$1"` || gU="$2"; eval $1=\'$gU\';}
@@ -24,7 +24,20 @@ uciLoad firewallTarget DROP
 uciLoad netSetName "$setName"-net
 uciLoad logTag "sub2rbl[$$]"
 uciLoad ipsetArgs "maxelem 32768"
-uciLoad webGetCmd "curl -sSm15 -o"
+uciLoad webGetCmd guess
+
+[ "$webGetCmd" = guess ] && {
+  if [ -x /usr/bin/wget-ssl ] ; then 
+    # GNU wget - to avoid OpenWRT curl issues
+    webGetCmd="/usr/bin/wget-ssl -qT15 -t2 -O"
+  elif [ -x /usr/bin/curl ] ; then
+    # curl with mbedTLS
+    webGetCmd="/usr/bin/curl -sSm15 -o"
+  else 
+    # finally, busybox wget - will fail on some TLS connections (incl. spamhaus)
+    [ -x /usr/bin/wget ] && webGetCmd="/usr/bin/wget -qO"
+  fi
+}
 
 # Functions 
 #
