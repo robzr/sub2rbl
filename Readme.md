@@ -12,9 +12,15 @@ DROP/EDROP net based RBLs (based on hijacked IP ranges used by spammers
 and cyber-criminals).
 
 **Dependencies**
-- curl (sadly, busybox/wget did not work for all the RBLs I tried)
-- ipset & kmod-ipt-ipset
-- openssl-util & ca-certificates (needed for https RBL URLs)
+
+- ipset + kmod-ipt-ipset for basic operation
+
+- curl + ca-certificates recommended for HTTPS RBLs (configured by default)
+(or)
+- wget + openssl-util + ca-certificates is an alternative to curl (GNU wget)
+
+sub2rbl will intelligently figure out the best option.  To force the use of
+a particular command, use the uci option "webGetCmd" (see the script for details)
 
 **Logging**
 
@@ -30,7 +36,7 @@ command line arguments.  sub2rbl -h for a list of arguments.
 
 **Installation**
 
-	opkg install ipset kmod-ipt-ipset openssl-util curl ca-certificates
+	opkg install ipset kmod-ipt-ipset curl ca-certificates
 	wget -O /etc/config/sub2rbl https://raw.githubusercontent.com/robzr/sub2rbl/master/config/sub2rbl
 	wget -O /usr/sbin/sub2rbl https://raw.githubusercontent.com/robzr/sub2rbl/master/sub2rbl
 	chmod 755 /usr/sbin/sub2rbl
