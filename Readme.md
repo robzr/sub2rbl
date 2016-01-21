@@ -14,13 +14,11 @@ and cyber-criminals).
 **Dependencies**
 
 - ipset + kmod-ipt-ipset for basic operation
-
-- curl + ca-certificates recommended for HTTPS RBLs (configured by default)
-(or)
+- curl + ca-certificates recommended for HTTPS RBLs (configured by default) -or-
 - wget + openssl-util + ca-certificates is an alternative to curl (GNU wget)
 
-sub2rbl will intelligently figure out the best option.  To force the use of
-a particular command, use the uci option "webGetCmd" (see the script for details)
+sub2rbl will intelligently select best option between curl/wget.  To force the use
+of one, or modify the behavior, use the uci option "webGetCmd" (read script for details)
 
 **Logging**
 
