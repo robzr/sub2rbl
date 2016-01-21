@@ -35,8 +35,8 @@ command line arguments.  sub2rbl -h for a list of arguments.
 **Installation**
 
 	opkg install ipset kmod-ipt-ipset curl ca-certificates
-	wget -O /etc/config/sub2rbl https://raw.githubusercontent.com/robzr/sub2rbl/master/config/sub2rbl
-	wget -O /usr/sbin/sub2rbl https://raw.githubusercontent.com/robzr/sub2rbl/master/sub2rbl
+	wget -O /etc/config/sub2rbl http://cdn.rawgit.com/robzr/sub2rbl/master/config/sub2rbl
+	wget -O /usr/sbin/sub2rbl http://cdn.rawgit.com/robzr/sub2rbl/master/sub2rbl
 	chmod 755 /usr/sbin/sub2rbl
 	echo '0 */6 * * * /usr/sbin/sub2rbl' >> /etc/crontabs/root
 	/etc/init.d/cron enable
