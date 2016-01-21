@@ -8,14 +8,12 @@
 #
 # Dependencies: curl (33k) & ipset (200k) needed for basic operation
 #               ca-certificates (186k) & openssl-util (200kb) needed if using HTTPS RBLs
-# needed for basic operation
 
-# for loading variables from uci (with default value)
-uciLoad () { local gU; gU=`uci -q get 'sub2rbl.@[0]'."$1"` || gU="$2"; eval $1=\'$gU\';}
+# for loading variables from uci (with default value) 
+uciLoad() { local gU; gU=`uci -q get 'sub2rbl.@[0]'."$1"` || gU="$2"; eval $1=\'$gU\';}
 
 # Make changes to these uci values in /etc/config/sub2rbl
 uciLoad setName sub2rbl
-uciLoad netSetName "$setName"-net
 uciLoad logLevel 1
 uciLoad logFacility authpriv.notice
 uciLoad firewallHookChain input_wan_rule
@@ -23,13 +21,14 @@ uciLoad firewallHookPosition 1
 uciLoad firewallTarget DROP
 
 # Advanced settings - not documented in sample config
+uciLoad netSetName "$setName"-net
 uciLoad logTag "sub2rbl[$$]"
 uciLoad ipsetArgs "maxelem 32768"
 uciLoad curlArgs "-sSm15"
 
 # Functions 
 #
-logLine () {
+logLine() {
   [ $1 -gt $logLevel ] && return ; shift
   if [ "$logFacility" = "stdout" ] ; then echo "$@"
   elif [ "$logFacility" = "stderr" ] ; then echo "$@" >&2
@@ -38,7 +37,7 @@ logLine () {
 }
 
 # Arg: $1=logLevel, $2=setName, $3=setType (ip or net)
-createSet () {
+createSet() {
   local useLogLevel="$1" set="$2" setType="$3"
   ipset list -q -n "$set" >/dev/null || {
     logLine $useLogLevel "Creating ipset $set"
@@ -46,7 +45,7 @@ createSet () {
 } }
 
 # Arg: $1=logLevel, $2=setName
-removeSet () {
+removeSet() {
   local useLogLevel=$1 set="$2" 
   ipset list -q -n "$set" >/dev/null && {
     logLine $useLogLevel "Destroying ipset $set"
@@ -54,7 +53,7 @@ removeSet () {
 } }
 
 # Arg: 1=$setName
-setupIPTables () {
+setupIPTables() {
   local set="$1"
   if [ $firewallHookPosition -ge 0 ] ; then
     if ! iptables -C "$firewallHookChain" -m set --match-set "$set" src -j "$firewallTarget" 2>/dev/null ; then
@@ -67,7 +66,7 @@ setupIPTables () {
 }
 
 # Arg: 1=$setName
-removeFromIPTables () {
+removeFromIPTables() {
   local set="$1"
   if [ $firewallHookPosition -ge 0 ] ; then
     if iptables -C "$firewallHookChain" -m set --match-set "$set" src -j "$firewallTarget" 2>/dev/null ; then
@@ -76,7 +75,7 @@ removeFromIPTables () {
   fi ; fi
 }
 
-printUsage () {
+printUsage() {
   cat <<-_EOF_
 	Usage: sub2rbl [-C ...] [-f ...] [-F #] [-j ...] [-l #] [-s ...] [-w] [URL ...]
 	  -C ... firewall chain to hook into (def: $firewallHookChain)
@@ -106,6 +105,7 @@ while getopts C:f:F:hj:l:s:w arg ; do
     *) printUsage
       exit 254
   esac
+#test shift $((OPTIND - 1))
 shift `expr $OPTIND - 1`
 done  
 

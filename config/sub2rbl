@@ -3,26 +3,23 @@
 #
 config sub2rbl 
   # Name of ipset that stores the RBLs
-  #	option	setName		sub2rbl
-
-  # Name of ipset that stores the net based RBLs
-  #	option	netSetName	sub2rbl-net
+  	option	setName		sub2rbl
 
   # Log Level - 0=silent 1=default 2=verbose 3=debug
-  #	option	logLevel	1
+  	option	logLevel	1
 
   # Logger facility/priority - use stdout or stderr to bypass syslog
-  # 	option	logFacility	authpriv.notice
+  	option	logFacility	authpriv.notice
 
   # IPTables chain to add the rule to
-  #	option	firewallHookChain	input_wan_rule
+  	option	firewallHookChain	input_wan_rule
 
   # IPTables chain position (-1 = don't add, 0 = append, 1+ = absolute position)
-  #	option	firewallHookPosition	1
+  	option	firewallHookPosition	1
 
   # IPTables target for banned IPs - you could use this to jump to a custom
   # chain for logging, launching external commands, etc.
-  #  	option	firewallTarget	DROP
+    	option	firewallTarget	DROP
   
   # Whitelist regex strings examples
   #	list	whitelist	'^10\.0\.[01]\..*$'
