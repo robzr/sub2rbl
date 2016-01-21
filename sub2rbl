@@ -6,8 +6,8 @@
 #
 # Recommended to run out of cron periodically, using default parameters.
 #
-# Dependencies: curl (33k) & ipset (200k) needed for basic operation
-#               ca-certificates (186k) needed if using HTTPS RBLs
+# Dependencies: ipset (200k) needed for basic operation
+#               curl (33k) + ca-certificates (186k) needed if using HTTPS RBLs
 
 # for loading variables from uci (with default value) 
 uciLoad() { local gU; gU=`uci -q get 'sub2rbl.@[0]'."$1"` || gU="$2"; eval $1=\'$gU\';}
@@ -26,16 +26,16 @@ uciLoad logTag "sub2rbl[$$]"
 uciLoad ipsetArgs "maxelem 32768"
 uciLoad webGetCmd guess
 
+# if webGetCmd is set to guess (default), we'll try to autoselect
+# between a few options for an TLS ready http client.
 [ "$webGetCmd" = guess ] && {
-  if [ -x /usr/bin/wget-ssl ] ; then 
-    # GNU wget - to avoid OpenWRT curl issues
-    webGetCmd="/usr/bin/wget-ssl -qT15 -t2 -O"
+  if [ -x /usr/bin/wget-ssl ] ; then
+    webGetCmd="/usr/bin/wget-ssl -qT15 -t2 -O"  # GNU wget - to avoid OpenWRT curl issues
   elif [ -x /usr/bin/curl ] ; then
-    # curl with mbedTLS
-    webGetCmd="/usr/bin/curl -sSm15 -o"
-  else 
-    # finally, busybox wget - will fail on some TLS connections (incl. spamhaus)
-    [ -x /usr/bin/wget ] && webGetCmd="/usr/bin/wget -qO"
+    webGetCmd="/usr/bin/curl -sSm15 -o"  # curl with mbedTLS - most lightweight option
+  else
+    [ -x /usr/bin/wget ] && webGetCmd="/usr/bin/wget -qO"   # finally, busybox wget,
+                 #  bad option since it fails on some TLS connections (incl. spamhaus)
   fi
 }
 
