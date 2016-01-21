@@ -52,6 +52,7 @@ You can take a look at the packet counts (first column) to see how many connecti
 
 **TBD**
 
+- Add elegant auto-hook to forward chain (ex: forwarding_wan_rule)
 - package
 - ipv6
 

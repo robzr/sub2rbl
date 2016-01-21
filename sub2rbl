@@ -24,7 +24,7 @@ uciLoad firewallTarget DROP
 uciLoad netSetName "$setName"-net
 uciLoad logTag "sub2rbl[$$]"
 uciLoad ipsetArgs "maxelem 32768"
-uciLoad curlArgs "-sSm15"
+uciLoad webGetCmd "curl -sSm15 -o"
 
 # Functions 
 #
@@ -105,8 +105,7 @@ while getopts C:f:F:hj:l:s:w arg ; do
     *) printUsage
       exit 254
   esac
-#test shift $((OPTIND - 1))
-shift `expr $OPTIND - 1`
+  shift $((OPTIND - 1))
 done  
 
 if $wipe ; then
@@ -144,7 +143,7 @@ for rbl in $rblList ; do
   createSet 1 "$tempSet" $setType
   createSet 2 "$tempSet"_swing $setType
   logLine 2 "Retrieving RBL ($rbl)"
-  if ! errorMsg=`curl $curlArgs -o "$tmpFile" "$rbl" 2>&1`; then
+  if ! errorMsg=`$webGetCmd "$tmpFile" "$rbl" 2>&1`; then
     logLine 1 "Error: retrieving RBL($rbl): $errorMsg"
     continue
   fi
