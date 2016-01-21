@@ -38,10 +38,9 @@ command line arguments.  sub2rbl -h for a list of arguments.
 	wget -O /etc/config/sub2rbl http://cdn.rawgit.com/robzr/sub2rbl/master/config/sub2rbl
 	wget -O /usr/sbin/sub2rbl http://cdn.rawgit.com/robzr/sub2rbl/master/sub2rbl
 	chmod 755 /usr/sbin/sub2rbl
+	echo /usr/sbin/sub2rbl >> /etc/firewall.user
 	echo '0 */6 * * * /usr/sbin/sub2rbl' >> /etc/crontabs/root
 	/etc/init.d/cron enable
-	# to load on reboots / firewall restarts run:
-	echo /usr/sbin/sub2rbl >> /etc/firewall.user
 	# And to watch it in action, for the first run, try:
 	sub2rbl -l 2 -f stdout
 
