@@ -34,8 +34,8 @@ uciLoad webGetCmd guess
   elif [ -x /usr/bin/curl ] ; then
     webGetCmd="/usr/bin/curl -sSm15 -o"  # curl with mbedTLS - most lightweight option
   else
-    [ -x /usr/bin/wget ] && webGetCmd="/usr/bin/wget -qO"   # finally, busybox wget,
-                 #  bad option since it fails on some TLS connections (incl. spamhaus)
+    # lastly, busybox wget - bad option as it fails on some TLS connections like spamhaus
+    webGetCmd="/usr/bin/wget -qO"
   fi
 }
 
@@ -182,9 +182,9 @@ for rbl in $rblList ; do
     mv "$tmpFile" "$tmpFile2"
   fi
   sed -i "s/^/add "$tempSet"_swing /" "$tmpFile2"
-  setSizeBefore=`ipset save "$tempSet"_swing | egrep '^add ' | wc -l`
+  setSizeBefore=`ipset save "$tempSet"_swing | egrep -c '^add '`
   ipset restore -f "$tmpFile2" -\!
-  setSize=`ipset save "$tempSet"_swing | egrep '^add ' | wc -l`
+  setSize=`ipset save "$tempSet"_swing | egrep -c '^add '`
   logLine 1 "RBL ($rbl) added $((setSize - setSizeBefore)) entries"
 done
 
