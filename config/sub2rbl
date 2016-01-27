@@ -46,5 +46,5 @@ config sub2rbl
 	list	rbl	'net:https://www.spamhaus.org/drop/drop.txt'
 	list	rbl	'net:https://www.spamhaus.org/drop/edrop.txt'
 
-  # Not exactly a RBL, but this would block traffic from china
-  #	list	rbl	'net:http://www.ipdeny.com/ipblocks/data/countries/ch.zone'
+  # http://ipdeny.com - provides lists of IPs associated with countries.  Ex: CN
+  #	list	rbl	'net:http://www.ipdeny.com/ipblocks/data/aggregated/cn-aggregated.zone'
