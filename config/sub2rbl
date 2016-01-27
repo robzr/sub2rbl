@@ -42,7 +42,7 @@ config sub2rbl
   # https://www.dragonresearchgroup.org/insight/sshpwauth-tac.html
         list    rbl     'https://www.dragonresearchgroup.org/insight/sshpwauth.txt'
 
-  # Spamhaus DROP/EDROP spammer/cyber-crime net based RBLs - https://www.spamhaus.org/drop
+  # https://www.spamhaus.org/drop - Spamhaus DROP/EDROP spammer/cyber-crime net based RBLs
 	list	rbl	'net:https://www.spamhaus.org/drop/drop.txt'
 	list	rbl	'net:https://www.spamhaus.org/drop/edrop.txt'
 
