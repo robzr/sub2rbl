@@ -11,11 +11,10 @@ config sub2rbl
   # Logger facility/priority - use stdout or stderr to bypass syslog
   	option	logFacility	authpriv.notice
 
-  # IPTables chain to add the rule to
-  	option	firewallHookChain	input_wan_rule
-
-  # IPTables chain position (-1 = don't add, 0 = append, 1+ = absolute position)
-  	option	firewallHookPosition	1
+  # IPTables chains to add rules to, syntax is chain:position where
+  #   position is (-1 = don't add, 0 = append, 1+ = absolute position)
+  	list	firewallHookChain	input_wan_rule:1
+  	list	firewallHookChain	forwarding_wan_rule:1
 
   # IPTables target for banned IPs - you could use this to jump to a custom
   # chain for logging, launching external commands, etc.

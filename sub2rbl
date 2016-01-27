@@ -18,17 +18,18 @@ uciLoadVar () {
 }
 
 uciLoad() {
-  uci -q -d"
-" get "$uciSection.$1" 2>/dev/null || while [ -n "$2" ]; do echo $2; shift; done
+  local delim="
+"
+  [ "$1" = -d ] && { delim="$2"; shift; shift; }
+  uci -q -d"$delim" get "$uciSection.$1" 2>/dev/null || while [ -n "$2" ]; do echo $2; shift; done
 }
 
 # Make changes to these uci values in /etc/config/sub2rbl
 uciLoadVar setName sub2rbl
 uciLoadVar logLevel 1
 uciLoadVar logFacility authpriv.notice
-uciLoadVar firewallHookChain input_wan_rule
-uciLoadVar firewallHookPosition 1
 uciLoadVar firewallTarget DROP
+firewallHookChains="`uciLoad -d \  firewallHookChain input_wan_rule:1 forwarding_wan_rule:1`"
 
 # Advanced settings - not documented in sample config
 uciLoadVar netSetName "$setName"-net
@@ -77,33 +78,34 @@ removeSet() {
 
 # Arg: 1=$setName
 setupIPTables() {
-  local set="$1"
-  if [ $firewallHookPosition -ge 0 ] ; then
-    if ! iptables -C "$firewallHookChain" -m set --match-set "$set" src -j "$firewallTarget" 2>/dev/null ; then
-      logLine 1 "Inserting iptables rule for $set into chain $firewallHookChain"
-      if [ $firewallHookPosition = 0 ] ; then
-        iptables -A "$firewallHookChain" -m set --match-set "$set" src -j "$firewallTarget"
+  local set="$1" x chain position
+  for x in $firewallHookChains ; do
+    chain="${x%:*}" ; position="${x#*:}"
+    if [ $position -ge 0 ] && ! iptables -C "$chain" -m set --match-set "$set" src -j "$firewallTarget" 2>/dev/null ; then
+      logLine 1 "Inserting iptables rule for $set into chain $chain"
+      if [ $position = 0 ] ; then
+        iptables -A "$chain" -m set --match-set "$set" src -j "$firewallTarget"
       else
-        iptables -I "$firewallHookChain" $firewallHookPosition -m set --match-set "$set" src -j "$firewallTarget"
-  fi ; fi ; fi
+        iptables -I "$chain" $position -m set --match-set "$set" src -j "$firewallTarget"
+  fi ; fi ; done
 }
 
 # Arg: 1=$setName
 removeFromIPTables() {
-  local set="$1"
-  if [ $firewallHookPosition -ge 0 ] ; then
-    if iptables -C "$firewallHookChain" -m set --match-set "$set" src -j "$firewallTarget" 2>/dev/null ; then
-      logLine 1 "Removing iptables rule for $set from chain $firewallHookChain"
-      iptables -D "$firewallHookChain" -m set --match-set "$set" src -j "$firewallTarget"
-  fi ; fi
+  local set="$1" x chain position
+  for x in $firewallHookChains ; do
+    chain="${x%:*}" ; position="${x#*:}"
+    if [ $position -ge 0 ] && iptables -C "$chain" -m set --match-set "$set" src -j "$firewallTarget" 2>/dev/null ; then
+      logLine 1 "Removing iptables rule for $set from chain $chain"
+      iptables -D "$chain" -m set --match-set "$set" src -j "$firewallTarget"
+  fi ; done
 }
 
 printUsage() {
   cat <<-_EOF_
-	Usage: sub2rbl [-C ...] [-f ...] [-F #] [-j ...] [-l #] [-s ...] [-w] [URL ...]
-	  -C ... firewall chain to hook into (def: $firewallHookChain)
+	Usage: sub2rbl [-C ...] [-f ...] [-j ...] [-l #] [-s ...] [-w] [URL ...]
+	  -C ... firewall hook chains:positions (def: $firewallHookChains)
 	  -f ... log facility (syslog facility or stdout/stderr) (def: $logFacility)
-	  -F #   firewall chain hook position (def: $firewallHookPosition)
 	  -j ... firewall target when matching the set (def: $firewallTarget)
 	  -l #   log level - 0=off, 1=standard, 2=verbose (def: $logLevel)
 	  -s ... ipset name
@@ -116,14 +118,13 @@ printUsage() {
 # Logic begins
 #
 wipe=false
-while getopts C:f:F:hj:l:s:w arg ; do
+while getopts C:f:hj:l:s:w arg ; do
   case "$arg" in
-    C) firewallHookChain=$OPTARG ;;
-    f) logFacility=$OPTARG ;;
-    F) firewallHookPosition=$OPTARG ;;
-    j) firewallTarget=$OPTARG ;;
-    l) logLevel=$OPTARG ;;
-    s) setName=$OPTARG ;;
+    C) firewallHookChains="$OPTARG" ;;
+    f) logFacility="$OPTARG" ;;
+    j) firewallTarget="$OPTARG" ;;
+    l) logLevel="$OPTARG" ;;
+    s) setName="$OPTARG" ;;
     w) wipe=true ;;
     *) printUsage
       exit 254
@@ -146,7 +147,7 @@ swingNetSetName="${netSetName}_swing"
 tmpFile="`mktemp`"
 tmpFile2="`mktemp`"
 
-whiteList="`uci -q -d'|' get "$uciSection.whitelist" 2>/dev/null`"
+whiteList="`uciLoad -d '|' whitelist`"
 
 # First we process our regular RBLs (IP based)
 uciLoad rbl | while read rbl ; do
