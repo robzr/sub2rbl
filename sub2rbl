@@ -9,22 +9,32 @@
 # Dependencies: ipset (200k) needed for basic operation
 #               curl (33k) + ca-certificates (186k) needed if using HTTPS RBLs
 
-# for loading variables from uci (with default value) 
-uciLoad() { local gU; gU=`uci -q get 'sub2rbl.@[0]'."$1"` || gU="$2"; eval $1=\'$gU\';}
+uciSection='sub2rbl.@[0]'
+
+uciLoadVar () {
+  local getUci
+  getUci=`uci -q get ${uciSection}."$1"` || getUci="$2"
+  eval $1=\'$getUci\';
+}
+
+uciLoad() {
+  uci -q -d"
+" get "$uciSection.$1" 2>/dev/null || while [ -n "$2" ]; do echo $2; shift; done
+}
 
 # Make changes to these uci values in /etc/config/sub2rbl
-uciLoad setName sub2rbl
-uciLoad logLevel 1
-uciLoad logFacility authpriv.notice
-uciLoad firewallHookChain input_wan_rule
-uciLoad firewallHookPosition 1
-uciLoad firewallTarget DROP
+uciLoadVar setName sub2rbl
+uciLoadVar logLevel 1
+uciLoadVar logFacility authpriv.notice
+uciLoadVar firewallHookChain input_wan_rule
+uciLoadVar firewallHookPosition 1
+uciLoadVar firewallTarget DROP
 
 # Advanced settings - not documented in sample config
-uciLoad netSetName "$setName"-net
-uciLoad logTag "sub2rbl[$$]"
-uciLoad ipsetArgs "maxelem 32768"
-uciLoad webGetCmd guess
+uciLoadVar netSetName "$setName"-net
+uciLoadVar logTag "sub2rbl[$$]"
+uciLoadVar ipsetArgs "maxelem 32768"
+uciLoadVar webGetCmd guess
 
 # if webGetCmd is set to guess (default), we'll try to autoselect
 # between a few options for an TLS ready http client.
@@ -136,15 +146,10 @@ swingNetSetName="${netSetName}_swing"
 tmpFile="`mktemp`"
 tmpFile2="`mktemp`"
 
-[ -z "$rblList" ] && rblList="`uci -q get 'sub2rbl.@[0]'.rbl`"
-unset whiteList
-for x in `uci -q get 'sub2rbl.@[0].whitelist'` ; do
-  whiteList="\"$x\"\\|$whiteList"
-done
-[ -n "$whiteList" ] ; then whiteList="${whiteList}\"^\$\""
+whiteList="`uci -q -d'|' get "$uciSection.whitelist" 2>/dev/null`"
 
 # First we process our regular RBLs (IP based)
-for rbl in $rblList ; do
+uciLoad rbl | while read rbl ; do
   if [ ${rbl%%:*} = net ] ; then
     setType='net' 		# process net-based RBLs
     rbl="${rbl##net:}"
@@ -178,7 +183,7 @@ for rbl in $rblList ; do
   fi
   if [ -n "$whiteList" ] ; then
     logLine 3 "Applying whitelist"
-    eval egrep -v "$whiteList" "$tmpFile2" \> "$tmpFile"
+    egrep -v "$whiteList" "$tmpFile2" > "$tmpFile"
     mv "$tmpFile" "$tmpFile2"
   fi
   sed -i "s/^/add "$tempSet"_swing /" "$tmpFile2"
