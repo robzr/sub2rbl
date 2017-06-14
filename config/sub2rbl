@@ -30,9 +30,14 @@ config sub2rbl
   # Plain URL is for IP based RBLs; prepend net: to the URL for CIDR (net) RBLs
   #
   
-  # https://openbl.org - tracks various services, lots of lists available
-        list    rbl     'https://www.openbl.org/lists/base_30days.txt'
+  # https://openbl.org - tracks various services, lots of lists available: out of service 06.2017
+  #     list    rbl     'https://www.openbl.org/lists/base_30days.txt'
   #     list    rbl     'https://www.openbl.org/lists/base_90days.txt'
+  
+  # http://rbldata.interserver.net/ - malware posts, ssh/ftp/email/modsec scans, spam and more
+  #     list    rbl     'https://sigs.interserver.net/iprbl.txt'
+        list    rbl     'https://rbldata.interserver.net/ip.txt' 
+  #     list    rbl     'https://rbldata.interserver.net/ipslim.txt' 
 
   # https://www.blocklist.de/en - blacklists generated from fail2ban feedback
         list    rbl     'https://lists.blocklist.de/lists/ssh.txt'
