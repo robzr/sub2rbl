@@ -35,8 +35,9 @@ config sub2rbl
   #     list    rbl     'https://www.openbl.org/lists/base_90days.txt'
   
   # http://rbldata.interserver.net/ - malware posts, ssh/ftp/email/modsec scans, spam and more
-        list    rbl     'http://rbldata.interserver.net/ip.txt' 
-	list    rbl     'http://rbldata.interserver.net/ipslim.txt' 
+  #     list    rbl     'https://sigs.interserver.net/iprbl.txt'
+        list    rbl     'https://rbldata.interserver.net/ip.txt' 
+  #     list    rbl     'https://rbldata.interserver.net/ipslim.txt' 
 
   # https://www.blocklist.de/en - blacklists generated from fail2ban feedback
         list    rbl     'https://lists.blocklist.de/lists/ssh.txt'
