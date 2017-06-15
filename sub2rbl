@@ -118,19 +118,20 @@ printUsage() {
 # Logic begins
 #
 wipe=false
-while getopts C:f:hj:l:s:w arg ; do
+while [[ $# -gt 1 ]]; do
+  arg="$1"
   case "$arg" in
-    C) firewallHookChains="$OPTARG" ;;
-    f) logFacility="$OPTARG" ;;
-    j) firewallTarget="$OPTARG" ;;
-    l) logLevel="$OPTARG" ;;
-    s) setName="$OPTARG" ;;
-    w) wipe=true ;;
+    -C) firewallHookChains="$2"; shift ;;
+    -f) logFacility="$2"; shift ;;
+    -j) firewallTarget="$2"; shift ;;
+    -l) logLevel="$2"; shift ;;
+    -s) setName="$2"; shift ;;
+    -w) wipe=true ;;
     *) printUsage
       exit 254
   esac
-  shift $((OPTIND - 1))
-done  
+  shift
+done 
 
 if $wipe ; then
   logLine 2 "Wiping sub2rbl from iptables and ipset"
