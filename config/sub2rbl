@@ -23,7 +23,7 @@ config sub2rbl
   # Whitelist regex strings examples
   #	list	whitelist	'^10\.0\.[01]\..*$'
   #	list	whitelist	'^192\.168\.1\..*$'
-
+  #	list	whitelist	'^127\.0\.0\.1$'
 
   # RBL URLs - some (but not all) will also support http
   #
