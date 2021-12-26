@@ -107,7 +107,7 @@ printUsage() {
 	  -C ... firewall hook chains:positions (def: $firewallHookChains)
 	  -f ... log facility (syslog facility or stdout/stderr) (def: $logFacility)
 	  -j ... firewall target when matching the set (def: $firewallTarget)
-	  -l #   log level - 0=off, 1=standard, 2=verbose (def: $logLevel)
+	  -l #   log level - 0=off, 1=info, 2=debug, 3=trace (def: $logLevel)
 	  -s ... ipset name
 	  -w     wipe ipset and iptables rule (do not process RBLs)
 	  URL(s) RBL URLs - using command line RBL URLs will override uci entries
