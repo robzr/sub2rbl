@@ -176,11 +176,11 @@ uciLoad rbl | while read rbl ; do
       sed -n 's/^.*|.*| *\([0-9\.][0-9\.]*\) .*$/\1/p' "$tmpFile" > "$tmpFile2"
     else
       logLine 3 "Loading plain IP list"
-      sed -n 's/^ *\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)[ 	]*.*$/\1/p' "$tmpFile" > "$tmpFile2"
+      sed -n 's/^ *\([1-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)[ 	]*.*$/\1/p' "$tmpFile" > "$tmpFile2"
     fi
   elif [ $setType = net ] ; then
       logLine 3 "Loading plain Net list"
-      sed -n 's#^ *\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*[/0-9]*\)[ 	]*.*$#\1#p' "$tmpFile" > "$tmpFile2"
+      sed -n 's#^ *\([1-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*[/0-9]*\)[ 	]*.*$#\1#p' "$tmpFile" > "$tmpFile2"
   fi
   if [ -n "$whiteList" ] ; then
     logLine 3 "Applying whitelist"
